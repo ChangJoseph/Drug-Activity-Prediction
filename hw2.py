@@ -79,8 +79,8 @@ def test_nb():
         
         # Calculating probabilities of the given record
         # prior0 and prior1 are defined
-        likelihood0 = -1 # p(x|C_0)
-        likelihood1 = -1 # p(x|C_1)
+        likelihood0 = -1 # TODO p(x|C_0)
+        likelihood1 = -1 # TODO p(x|C_1)
         evidence = 1 # p(x)
         
         # calculating naive bayes
