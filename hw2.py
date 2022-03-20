@@ -106,6 +106,7 @@ def test_nb():
     out_file.close()
 
 
+
 # *** Neural Network Implementation ***
 
 """
