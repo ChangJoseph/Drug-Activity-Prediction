@@ -17,14 +17,6 @@ output_file = "hw2_output.txt"
 prior0 = -1 # p(C_0)
 prior1 = -1 # p(C_1)
 
-# counts of training records classified as either active or inactive
-active_count = 0
-inactive_count = 0
-
-# set of active and inactive records' inputs
-active_set = {}
-inactive_set = {}
-
 """
 This train_nb() function is the training sequence for the naive bayes approach
 The higher probability of classification (or p(C)) given the probability of the given record inputs (or p(C|x)) is equivalent to p(C)*p(x|C)/p(x) where C is the classification (as 0 or 1) and x are the record inputs (indices)
@@ -32,6 +24,14 @@ The higher probability of classification (or p(C)) given the probability of the 
 def train_nb():
     # open training file
     train_file = open(training_file, "r", encoding="utf-8")
+    
+    # counts of training records classified as either active or inactive
+    active_count = 0
+    inactive_count = 0
+    
+    # set of active and inactive records' inputs
+    active_set = []
+    inactive_set = []
     
     # read each line of the training file
     while (1):
@@ -46,21 +46,13 @@ def train_nb():
         
         if active == 0:
             inactive_count += 1
-            if input in inactive_set:
-                inactive_set[input] += 1
-            else:
-                inactive_set[input] = 0
-        elif active == 1:
-            active_count += 1
-            if input in active_set:
-                active_set[input] += 1
-            else:
-                active_set[input] = 0
+            inactive_set.append(input)
         else:
-            print("error parsing active (not 0 or 1)")
+            active_count += 1
+            active_set.append(input)
         
         # END TRAINING FILE READ
-
+    
     # close train files
     train_file.close()
     

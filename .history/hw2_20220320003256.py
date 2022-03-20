@@ -57,7 +57,7 @@ def train_nb():
             else:
                 active_set[input] = 0
         else:
-            print("error parsing active (not 0 or 1)")
+            print("error parsing active (0/1)")
         
         # END TRAINING FILE READ
 

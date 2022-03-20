@@ -46,18 +46,10 @@ def train_nb():
         
         if active == 0:
             inactive_count += 1
-            if input in inactive_set:
-                inactive_set[input] += 1
-            else:
-                inactive_set[input] = 0
-        elif active == 1:
-            active_count += 1
-            if input in active_set:
-                active_set[input] += 1
-            else:
-                active_set[input] = 0
+            inactive_set[input] += 1
         else:
-            print("error parsing active (not 0 or 1)")
+            active_count += 1
+            active_set.append(input)
         
         # END TRAINING FILE READ
 
