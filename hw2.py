@@ -286,7 +286,7 @@ def neural_network():
         read_iteration += 1
 
     # cross validation - 3/4 train 1/4 test
-    X_train, X_test, y_train, y_test = train_test_split(x_train, y_train, test_size=0.3, random_state=0)
+    X_train, X_test, y_train, y_test = train_test_split(x_train, y_train, stratify=y_train, test_size=0.3, random_state=0)
 
     # Initial values for model
     init_func = keras.initializers.RandomNormal(mean=0.0, stddev=0.05, seed = 0)
@@ -294,19 +294,21 @@ def neural_network():
     model = keras.Sequential()
     # entry layer with 100000 input neurons with a sigmoid activation function
     #input_layer = keras.layers.Dense(2, input_shape=(100001,), kernel_initializer=init_func)
-    input_layer = keras.layers.Flatten(input_shape=(100001,))
+    input_layer = keras.layers.Dense(256,input_shape=(100001,))
     model.add(input_layer)
     hidden_layer1 = keras.layers.Dropout(0.5)
     model.add(hidden_layer1)
-    hidden_layer2 = keras.layers.Dense(300, activation="relu")
+    hidden_layer2 = keras.layers.Dense(200, activation="relu")
     model.add(hidden_layer2)
+    #hidden_layer3 = keras.layers.Dense(256, activation="relu")
+    #model.add(hidden_layer3)
     output_layer = keras.layers.Dense(1, activation="hard_sigmoid")
     model.add(output_layer)
     # configure the model
     # optimizer is the Stochastic gradient descent optimizer (finding min iteratively)
     model.compile(loss = "binary_crossentropy", optimizer = "sgd", metrics = ["binary_accuracy"])
     # train the model
-    model.fit(X_train, y_train, epochs = 4, batch_size = 22)
+    model.fit(X_train, y_train, epochs = 24, batch_size = 32)
     test_loss, test_acc = model.evaluate(X_test, y_test)
     print (f"\naccuracy:\t{test_acc}\nloss:\t{test_loss}")
 
@@ -336,6 +338,7 @@ def neural_network():
     # run neural network model against hw2 given testing data
     test_output = model.predict(testing_data)
     pretty_output = ""
+    count_1s = 0
 
     for test_record in test_output:
         pretty_output += str(test_record[0]) + "\t"
@@ -343,11 +346,13 @@ def neural_network():
         probability = test_record[0] + test_loss
         if probability > 0.5:
             output = "1\n"
+            count_1s += 1
         else:
             output = "0\n"
         output_string += output
 
-    print(pretty_output)
+    #print(pretty_output)
+    print("ones: " + str(count_1s))
 
     # Write output to designated file
     out_file.write(output_string)
