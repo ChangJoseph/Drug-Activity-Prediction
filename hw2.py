@@ -1,13 +1,6 @@
 # Joseph Chang - G01189913
 
 # Data Visualization
-from re import A
-from threading import active_count
-import matplotlib.pyplot as plt
-import pandas as pd
-import seaborn as sns
-
-import time
 
 # File paths
 training_file = "1645760197_9666755_1568904114_9130223_train_drugs_1.txt"
@@ -15,24 +8,24 @@ testing_file = "1645760197_9795408_1568904114_9234657_test.txt"
 output_file = "hw2_output.txt"
 
 
+
+#______________________________________________________________________________
 # *** Naive Bayes Implementation ***
 
 # counts of training records classified as either active or inactive
-active_count = 0
-inactive_count = 0
+nb_active_count = 0
+nb_inactive_count = 0
 
 # set of active and inactive records' inputs
-active_set = {}
-inactive_set = {}
-
+nb_active_set = {}
+nb_inactive_set = {}
 
 # Helper functions
-def prod(xs, mod):
+def prod(xs, mod, norm):
     product = 1
     for x in xs:
-        product *= ((x/mod) ** 0.06)
+        product *= ((x/mod)**norm)
     return product
-
 
 """
 Naive Bayes Training Segment
@@ -43,10 +36,10 @@ Implementation Notes:
 """
 def train_nb():
     # global fields
-    global active_count
-    global inactive_count
-    global active_set
-    global inactive_set
+    global nb_active_count
+    global nb_inactive_count
+    global nb_active_set
+    global nb_inactive_set
 
     # open training file
     train_file = open(training_file, "r", encoding="utf-8")
@@ -63,30 +56,30 @@ def train_nb():
         active = int(line[0]) # 0 for inactive : 1 for active
         for x in input:
             if active == 0:
-                inactive_count += 1
-                if x in inactive_set:
-                    inactive_set[x] += 1
+                nb_inactive_count += 1
+                if x in nb_inactive_set:
+                    nb_inactive_set[x] += 1
                 else:
-                    inactive_set[x] = 1
+                    nb_inactive_set[x] = 1
             elif active == 1:
-                active_count += 1
-                if x in active_set:
-                    active_set[x] += 1
+                nb_active_count += 1
+                if x in nb_active_set:
+                    nb_active_set[x] += 1
                 else:
-                    active_set[x] = 1
+                    nb_active_set[x] = 1
             else:
                 print("error parsing active (not 0 or 1)")
         
         # END TRAINING FILE READ
 
-    # Feature Reduction/Selection
+    # Feature Selection/Reduction
     # Generic feature removal
     to_remove = []
-    for key, val in active_set.items():
+    for key, val in nb_active_set.items():
         #break # TODO remove
         # Feature is in both active and inactive set
-        if key in inactive_set:
-            inactive_val = inactive_set[key]
+        if key in nb_inactive_set:
+            inactive_val = nb_inactive_set[key]
             if val > inactive_val:
                 ratio = inactive_val / val
             else:
@@ -96,13 +89,27 @@ def train_nb():
             if ratio > thresh:
                 to_remove.append(key)
     for key in to_remove:
-        if key in inactive_set:
-            inactive_set.pop(key)
-        if key in active_set:
-            active_set.pop(key)
+        if key in nb_inactive_set:
+            nb_inactive_set.pop(key)
+        if key in nb_active_set:
+            nb_active_set.pop(key)
+    
+    # A drastic feature Selection of shared features
+    to_remove = []
+    for key, val in nb_active_set.items():
+        if key not in nb_inactive_set:
+            to_remove.append(key)
+    for key in to_remove:
+        nb_active_set.pop(key)
+    to_remove = []
+    for key, val in nb_inactive_set.items():
+        if key not in nb_active_set:
+            to_remove.append(key)
+    for key in to_remove:
+        nb_inactive_set.pop(key)
 
-    #print(dict(list(active_set.items())[:20]))
-    #print(dict(list(inactive_set.items())[:20]))
+    #print(dict(list(nb_active_set.items())[:20]))
+    #print(dict(list(nb_inactive_set.items())[:20]))
 
     # close train files
     train_file.close()
@@ -121,19 +128,17 @@ def test_nb():
     
     # prior value calculations
     # prior value calculated assuming testing set has same distribution as training set
-    prior0 = inactive_count / (active_count + inactive_count)
-    prior1 = active_count / (active_count + inactive_count)
+    prior0 = nb_inactive_count / (nb_active_count + nb_inactive_count)
+    prior1 = nb_active_count / (nb_active_count + nb_inactive_count)
     #prior0 = prior1 = 1
 
     # analysis fields
     tie_count = 0
-    set_null_count0 = 0
-    set_null_count1 = 0
+    set_null_count0 = set_null_count1 = 0
     threshold_unmet_count = 0
     no_product_count = 0
-    class_count_0 = 0
-    class_count_1 = 0
-    lowest_ratio = 10000
+    class_count_0 = class_count_1 = 0
+    lowest_ratio = 1
 
     # read each line of the testing file
     #while (tie_count == 0):
@@ -150,47 +155,62 @@ def test_nb():
         likelihood0_set = [] # p(x|C_0)
         likelihood1_set = [] # p(x|C_1)
         for x in input:
-            if x in inactive_set:
-                if inactive_set[x] / len(inactive_set) > 0.00001:
-                    likelihood0_set.append(inactive_set[x])
-                    if inactive_set[x] / len(inactive_set) < lowest_ratio:
-                        lowest_ratio = inactive_set[x] / len(inactive_set)
+            if x in nb_inactive_set:
+                if nb_inactive_set[x] / len(nb_inactive_set) > 0.00001:
+                    likelihood0_set.append(nb_inactive_set[x])
+                    if nb_inactive_set[x] / len(nb_inactive_set) < lowest_ratio:
+                        lowest_ratio = nb_inactive_set[x] / len(nb_inactive_set)
                 else:
                     threshold_unmet_count += 1
             else:
+                #likelihood1_set.append(0)
                 set_null_count0 += 1
-            if x in active_set:
-                if active_set[x] / len(active_set) > 0.00001:
-                    likelihood1_set.append(active_set[x])
-                    if active_set[x] / len(active_set) < lowest_ratio:
-                        lowest_ratio = active_set[x] / len(active_set)
+            if x in nb_active_set:
+                if nb_active_set[x] / len(nb_active_set) > 0.00001:
+                    likelihood1_set.append(nb_active_set[x])
+                    if nb_active_set[x] / len(nb_active_set) < lowest_ratio:
+                        lowest_ratio = nb_active_set[x] / len(nb_active_set)
                 else:
                     threshold_unmet_count += 1
             else:
+                #likelihood1_set.append(0)
                 set_null_count1 += 1
 
 
         # calculating naive bayes
-        likelihood0_raw = prod(likelihood0_set,len(inactive_set))
-        likelihood1_raw = prod(likelihood1_set,len(active_set))
+        # prod(set, common denominators, normalization (exponent))
+        # Here I set a normalization because the decimals get too small and python can assume zero for tiny numbers
+        # ex: prod([x,...],d,e) -> (x/d)^(e) * ...
+        likelihood0_raw = prod(likelihood0_set, nb_inactive_count,  0.02)
+        likelihood1_raw = prod(likelihood1_set, nb_active_count,    0.02)
+        #likelihood0_raw = prod(likelihood0_set, len(likelihood0_set), 0.05)
+        #likelihood1_raw = prod(likelihood1_set, len(likelihood1_set), 0.05)
         #print(f"likelihoods: {likelihood0} {likelihood1}")
+
+        # edge case if were no features (or in near impossible cases if all probabilities were 1)
+        if likelihood0_raw == 1:
+            no_product_count += 1
+            likelihood0_raw = 0
+        if likelihood1_raw == 1:
+            no_product_count += 1
+            likelihood1_raw = 0
         
         # normalization of the class probability calculations
-        likelihood0 = likelihood0_raw / (likelihood0_raw + likelihood1_raw)
-        likelihood1 = likelihood1_raw / (likelihood0_raw + likelihood1_raw)
+        try:
+            likelihood0 = likelihood0_raw / (likelihood0_raw + likelihood1_raw)
+        except ZeroDivisionError:
+            print("**zero division")
+            likelihood0 = 0
+        try:
+            likelihood1 = likelihood1_raw / (likelihood0_raw + likelihood1_raw)
+        except ZeroDivisionError:
+            print("**zero division")
+            likelihood1 = 0
         # evidence can be ignored (arbitrary) because it is the same for both calculations (for C=0 and C=1)
         #evidence = 1 # p(x)
         # final naive bayes calculation
         c0_calc = prior0 * likelihood0 #/ evidence
         c1_calc = prior1 * likelihood1 #/ evidence
-        
-        # edge case if were no features (or in near impossible cases if all probabilities were 1)
-        if c0_calc == 1:
-            no_product_count += 1
-            c0_calc = 0
-        if c1_calc == 1:
-            no_product_count += 1
-            c1_calc = 0
 
         # obtaining predicted class
         output = "" # reset current record output just in case
@@ -213,7 +233,7 @@ def test_nb():
     # Analysis prints
     print("--Naive Bayes Analyses--")
     print(f"prior0 = {prior0}\tprior1 = {prior1}")
-    #print("len(active_set) " + str(len(active_set)) + "\nlen(inactive_set) " + str(len(inactive_set)))
+    #print("len(nb_active_set) " + str(len(nb_active_set)) + "\nlen(nb_inactive_set) " + str(len(nb_inactive_set)))
     print(f"no_product_count (calc:1->0) = {no_product_count}\tlowest ratio = {lowest_ratio}")
     print(f"class_count_0 = {class_count_0}\tclass_count_1 = {class_count_1}\tnumber of ties = {tie_count}")
     print(f"not in dict 0 = {set_null_count0}\tnot in dict 1 = {set_null_count1}\tunmet prob thresh = {threshold_unmet_count}")
@@ -226,45 +246,120 @@ def test_nb():
     out_file.close()
 
 
-
-
+#______________________________________________________________________________
 
 # *** Neural Network Implementation ***
+import sklearn
+from sklearn.model_selection import train_test_split
+import numpy as np
+import pandas as pd
+import keras
+
+def f1_score(true, pred):
+    precision = 1
+    recall = 1
+    return 2 * (precision * recall) / (precision + recall)
 
 """
-This train_nn() is the training sequence for the neural network approach
-In this perceptron model, 
+This neural_network() is for the neural network approach
 """
-def train_nn():
+def neural_network():
+    # *** TRAINING PHASE ***
+
+    in_shape = (800,100001)
+    x_train = np.zeros(in_shape)
+    y_train = np.zeros(800)
     # open training file
     train_file = open(training_file, "r", encoding="utf-8")
-    
-    
-    
-    # close train files
-    train_file.close()
+    read_iteration = 0
+    # read each line of the training file
+    while (1):
+        line = train_file.readline()
+        if (line == ""): # ""/eof -> done reading lines
+            break
+        # get the input data of the current line's record
+        input = line[2:].split(" ")[:-1] # the last index is an empty string
+        # get the active status of current line's record
+        y_train[read_iteration] = int(line[0]) # 0 for inactive : 1 for active
+        for read_elem in input:
+            x_train[read_iteration][int(read_elem)] = 1
+        read_iteration += 1
 
-def test_nn():
-    # open testing file
-    test_file = open(testing_file, "r", encoding="utf-8")
+    # cross validation - 3/4 train 1/4 test
+    X_train, X_test, y_train, y_test = train_test_split(x_train, y_train, test_size=0.3, random_state=0)
+
+    # Initial values for model
+    init_func = keras.initializers.RandomNormal(mean=0.0, stddev=0.05, seed = 0)
+    # Layer structure for model
+    model = keras.Sequential()
+    # entry layer with 100000 input neurons with a sigmoid activation function
+    #input_layer = keras.layers.Dense(2, input_shape=(100001,), kernel_initializer=init_func)
+    input_layer = keras.layers.Flatten(input_shape=(100001,))
+    model.add(input_layer)
+    hidden_layer1 = keras.layers.Dropout(0.5)
+    model.add(hidden_layer1)
+    hidden_layer2 = keras.layers.Dense(300, activation="relu")
+    model.add(hidden_layer2)
+    output_layer = keras.layers.Dense(1, activation="hard_sigmoid")
+    model.add(output_layer)
+    # configure the model
+    # optimizer is the Stochastic gradient descent optimizer (finding min iteratively)
+    model.compile(loss = "binary_crossentropy", optimizer = "sgd", metrics = ["binary_accuracy"])
+    # train the model
+    model.fit(X_train, y_train, epochs = 4, batch_size = 22)
+    test_loss, test_acc = model.evaluate(X_test, y_test)
+    print (f"\naccuracy:\t{test_acc}\nloss:\t{test_loss}")
+
+
+    # *** TESTING PHASE ***
+
+    # open testing and output files
     out_file = open(output_file, "w")
     output_string = ""
     
-    
-    
+    in_shape = (350,100001)
+    testing_data = np.zeros(in_shape)
+    # open training file
+    test_file = open(testing_file, "r", encoding="utf-8")
+    read_iteration = 0
+    # read each line of the training file
+    while (1):
+        line = test_file.readline()
+        if (line == ""): # ""/eof -> done reading lines
+            break
+        # get the input data of the current line's record
+        input = line.split(" ")[:-1] # the last index is an empty string
+        for read_elem in input:
+            testing_data[read_iteration][int(read_elem)] = 1
+        read_iteration += 1
+
+    # run neural network model against hw2 given testing data
+    test_output = model.predict(testing_data)
+    pretty_output = ""
+
+    for test_record in test_output:
+        pretty_output += str(test_record[0]) + "\t"
+        output = ""
+        probability = test_record[0] + test_loss
+        if probability > 0.5:
+            output = "1\n"
+        else:
+            output = "0\n"
+        output_string += output
+
+    print(pretty_output)
+
     # Write output to designated file
-    #out_file.write(output_string)
+    out_file.write(output_string)
     # close test and output files
     test_file.close()
     out_file.close()
 
+    return
+
 
 # Train and Test Function Execution Code Segment
 print("Starting code execution")
-train_nb()
-test_nb()
-
-"""
-train_nn()
-test_nn()
-"""
+#train_nb()
+#test_nb()
+neural_network()
