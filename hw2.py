@@ -1,13 +1,10 @@
 # Joseph Chang - G01189913
 
-# Data Visualization
-
 # File paths
 training_file = "1645760197_9666755_1568904114_9130223_train_drugs_1.txt"
 testing_file = "1645760197_9795408_1568904114_9234657_test.txt"
-output_file = "hw2_output.txt"
-
-
+output_file_nb = "hw2_output_nb.txt"
+output_file_nn = "hw2_output_nn.txt"
 
 #______________________________________________________________________________
 # *** Naive Bayes Implementation ***
@@ -123,7 +120,7 @@ Implementation Notes:
 def test_nb():
     # open testing file
     test_file = open(testing_file, "r", encoding="utf-8")
-    out_file = open(output_file, "w", encoding="utf-8")
+    out_file = open(output_file_nb, "w", encoding="utf-8")
     output_string = ""
     
     # prior value calculations
@@ -255,11 +252,6 @@ import numpy as np
 import pandas as pd
 import keras
 
-def f1_score(true, pred):
-    precision = 1
-    recall = 1
-    return 2 * (precision * recall) / (precision + recall)
-
 """
 This neural_network() is for the neural network approach
 """
@@ -288,9 +280,9 @@ def neural_network():
     # cross validation - 3/4 train 1/4 test
     X_train, X_test, y_train, y_test = train_test_split(x_train, y_train, stratify=y_train, test_size=0.3, random_state=0)
 
-    # Initial values for model
-    init_func = keras.initializers.RandomNormal(mean=0.0, stddev=0.05, seed = 0)
-    # Layer structure for model
+    # Unused Initial values for model (I use default 0s instead)
+    #init_func = keras.initializers.RandomNormal(mean=0.0, stddev=0.05, seed = 0)
+    # Sequential layer structure for model
     model = keras.Sequential()
     # entry layer with 100000 input neurons with a sigmoid activation function
     #input_layer = keras.layers.Dense(2, input_shape=(100001,), kernel_initializer=init_func)
@@ -316,7 +308,7 @@ def neural_network():
     # *** TESTING PHASE ***
 
     # open testing and output files
-    out_file = open(output_file, "w")
+    out_file = open(output_file_nn, "w")
     output_string = ""
     
     in_shape = (350,100001)
@@ -340,6 +332,8 @@ def neural_network():
     pretty_output = ""
     count_1s = 0
 
+    # prediction probability is the probability + loss
+    # if prediction probability is more than 50% sure, then classify as 1
     for test_record in test_output:
         pretty_output += str(test_record[0]) + "\t"
         output = ""
@@ -351,8 +345,9 @@ def neural_network():
             output = "0\n"
         output_string += output
 
+    # analyses prints
     #print(pretty_output)
-    print("ones: " + str(count_1s))
+    #print("ones: " + str(count_1s))
 
     # Write output to designated file
     out_file.write(output_string)
@@ -365,6 +360,6 @@ def neural_network():
 
 # Train and Test Function Execution Code Segment
 print("Starting code execution")
-#train_nb()
-#test_nb()
+train_nb()
+test_nb()
 neural_network()
