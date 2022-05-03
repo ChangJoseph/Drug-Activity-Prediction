@@ -1,25 +1,9 @@
-HW2 - Drug Activity Prediction
-Published Date:
-Feb. 24, 2022, 10:36 p.m.
-Deadline Date:
-March 17, 2022, midnight
-Description:
-Description:
+Drug Activity Prediction
 
-************************************************
-
-This is an individual assignment with maximum size of 1. Deadline is 03/17/2022 11:59 PM EST. 
-
-************************************************
-
-Overview and Assignment Goals:
-
-The objectives of this assignment are the following: 
-
-    Use/implement a feature selection/reduction technique.
-    Experiment with various classification models.
-    Think about dealing with imbalanced data. 
-    Use F1 Scoring Metric
+Use/implement a feature selection/reduction technique.
+Experiment with various classification models.
+Think about dealing with imbalanced data. 
+Use F1 Scoring Metric
 
 Detailed Description:
 
@@ -34,47 +18,13 @@ A molecule can be represented by several thousands of binary features which repr
 Since the dataset is imbalanced the scoring function will be the F1-score instead of Accuracy.
 
 Caveats:
-
 + Remember not all features will be good for predicting activity. Think of feature selection, engineering, reduction (anything that works)
-
 + The dataset has an imbalanced distribution i.e., within the training set there are only 78 actives (+1) and 722 inactives (0). No information is provided for the test set regarding the distribution.
-
 + Use your data mining knowledge till now, wisely to optimize your results.
 
 Data Description:
-
 The training dataset consists of 800 records and the test dataset consists of 350 records. We provide you with the training class labels and the test labels are held out. The attributes are binary type and as such are presented in a sparse matrix format within train.dat and test.dat
-
- 
 
 Train data: Training set (a sparse binary matrix, patterns in lines, features in columns: the number of the non-zero features are provided with class label 1 or 0 in the first column.
 
- 
-
 Test data: Testing set (a sparse binary matrix, patterns in lines, features in columns: the number of non-zero features are provided).
-
-Format example: A sample submission with 350 entries randomly chosen to be 0 or 1. 
-
-
-
-
-Rules:
-    This is an individual assignment. Discussion of broad level strategies are allowed but any copying of prediction files and source codes will result in honor code violation. 
-    Feel free to use the programming language of your choice for this assignment. 
-    While you can use libraries and templates for dealing with this problem, remember implementation is 40% of the grade. There should still be programming needed even if you choose to use existing packages. You should be able to explain these methods and their choice in sufficient detail.
-    Implementation will be graded based on the quality of your code, the amount of effort put in for classifier/model selection, scalability, etc. You are required to try at least two of the following classifiers: (1) Decision Tree, (2) Naïve Bayes, and (3) Neural Network. You can try more classifiers if you want to, but if it’s something we have not covered in class, make sure you provide explanation of the method(s) to demonstrate your understanding of it. Justify the choice of your method via experiments and report the results using tables. Submit your best predictions. Summarize your findings in the report.
-    Your results should be reproducible. If we find that we cannot reproduce your results, or if the description in your report does not match what your code does, you will receive penalty on the assignment, and this may result in honor code violation.
-    You are allowed 10 submissions in a 24 hour cycle. 
-
-Deliverables:
-    Valid Submissions to the Miner.vsnet.gmu.edu website 
-    GradeScope Submission of Source Code and Report: 
-        Create a folder called HW2_LastName
-        Create a subfolder called src and put all the source code there.
-        Create a subfolder called Report and place a 2-Page, single-spaced report describing details regarding the steps you followed for feature selection and classifier model development. Also report your experimental results from different classifiers/models, including the running times. Be sure to include the following in the report: 
-
-        Name Registered on miner web-site.
-        Rank & F1 score for your submission (at the time of writing the report).
-        Your Approach 
-        Your methodology of choosing the approach and associated parameters.
-        Archive your parent folder (.zip or .tar.gz) and submit via GradeScope for HW2. 
